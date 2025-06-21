@@ -3,6 +3,7 @@
 
 import { signIn, signOut, useSession } from "next-auth/react";
 import { FC } from "react";
+import Image from "next/image";
 
 const AuthButton: FC = () => {
   const { data: session, status } = useSession();
@@ -22,9 +23,11 @@ const AuthButton: FC = () => {
 
   return (
     <div className="flex items-center space-x-4">
-      <img
-        src={session.user?.image || ""}
+      <Image
+        src={session.user?.image || "/default-avatar.png"}
         alt="User avatar"
+        width={32}
+        height={32}
         className="w-8 h-8 rounded-full"
       />
       <span className="text-sm text-gray-800">{session.user?.name}</span>
