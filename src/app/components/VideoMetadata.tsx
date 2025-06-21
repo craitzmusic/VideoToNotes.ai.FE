@@ -2,14 +2,15 @@
 
 import { FC } from 'react';
 
+export interface VideoMetadataFields {
+  title?: string;
+  duration?: number;
+  upload_date?: string;
+  description?: string;
+}
+
 export interface VideoMetadataProps {
-  metadata?: {
-    title?: string;
-    duration?: number;
-    upload_date?: string;
-    description?: string;
-    [key: string]: any;
-  };
+  metadata?: VideoMetadataFields;
 }
 
 const formatDuration = (seconds?: number): string => {

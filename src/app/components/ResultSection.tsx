@@ -3,17 +3,12 @@
 import { FC, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import VideoMetadata from './VideoMetadata';
+import { VideoMetadataFields } from './VideoMetadata';
 
 interface ResultSectionProps {
   transcription?: string;
   summary?: string;
-  metadata?: {
-    title?: string;
-    duration?: number;
-    upload_date?: string;
-    description?: string;
-    [key: string]: any;
-  };
+  metadata?: VideoMetadataFields;
 }
 
 interface Flashcard {
@@ -31,6 +26,13 @@ interface StudyPlanData {
   plan: StudyPlanTopic[];
 }
 
+interface Question {
+  enunciado: string;
+  alternativas: string[];
+  correta: number;
+  explicacao?: string;
+}
+
 const TABS = [
   { key: 'metadata', label: 'Metadata' },
   { key: 'transcription', label: 'Transcription' },
@@ -46,7 +48,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
   const hasContent = transcription || summary || metadata;
   const [activeTab, setActiveTab] = useState<string>('metadata');
   const [numQuestions, setNumQuestions] = useState(5);
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [errorQuestions, setErrorQuestions] = useState<string | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number | undefined }>({});
@@ -81,8 +83,9 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
       if (!res.ok) throw new Error('Failed to generate questions');
       const data = await res.json();
       setQuestions(data);
-    } catch (err: any) {
-      setErrorQuestions(err.message || 'Failed to generate questions');
+    } catch (err: unknown) {
+      if (err instanceof Error) setErrorQuestions(err.message);
+      else setErrorQuestions('Failed to generate questions');
     } finally {
       setLoadingQuestions(false);
     }
@@ -111,8 +114,9 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
       if (!res.ok) throw new Error('Failed to generate flashcards');
       const data = await res.json();
       setFlashcards(data);
-    } catch (err: any) {
-      setErrorFlashcards(err.message || 'Failed to generate flashcards');
+    } catch (err: unknown) {
+      if (err instanceof Error) setErrorFlashcards(err.message);
+      else setErrorFlashcards('Failed to generate flashcards');
     } finally {
       setLoadingFlashcards(false);
     }
@@ -145,8 +149,9 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
       if (!res.ok) throw new Error('Failed to generate study plan');
       const data = await res.json();
       setStudyPlanData(data);
-    } catch (err: any) {
-      setErrorStudyPlan(err.message || 'Failed to generate study plan');
+    } catch (err: unknown) {
+      if (err instanceof Error) setErrorStudyPlan(err.message);
+      else setErrorStudyPlan('Failed to generate study plan');
     } finally {
       setLoadingStudyPlan(false);
     }
