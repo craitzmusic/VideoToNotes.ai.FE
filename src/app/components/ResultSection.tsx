@@ -21,12 +21,24 @@ interface Flashcard {
   back: string;
 }
 
+interface StudyPlanTopic {
+  topic: string;
+  review_dates: string[];
+  notes: string;
+}
+
+interface StudyPlanData {
+  plan: StudyPlanTopic[];
+}
+
 const TABS = [
   { key: 'metadata', label: 'Metadata' },
   { key: 'transcription', label: 'Transcription' },
   { key: 'summary', label: 'Summary' },
   { key: 'questions', label: 'Questions' },
   { key: 'flashcards', label: 'Flashcards' },
+  { key: 'studyplan', label: 'Plano de Estudos' },
+  { key: 'mindmap', label: 'Mind Map' },
 ];
 
 // Component to display transcription, summary and optional video metadata
@@ -45,6 +57,9 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
   const [currentFlashcard, setCurrentFlashcard] = useState(0);
   const [showFlashcardBack, setShowFlashcardBack] = useState(false);
   const [numFlashcards, setNumFlashcards] = useState(10);
+  const [studyPlanData, setStudyPlanData] = useState<StudyPlanData | null>(null);
+  const [loadingStudyPlan, setLoadingStudyPlan] = useState(false);
+  const [errorStudyPlan, setErrorStudyPlan] = useState<string | null>(null);
   const { data: session } = useSession();
 
   const handleGenerateQuestions = async () => {
@@ -111,6 +126,30 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
   const handleNextFlashcard = () => {
     setCurrentFlashcard((prev) => Math.min(prev + 1, flashcards.length - 1));
     setShowFlashcardBack(false);
+  };
+
+  const handleGenerateStudyPlan = async () => {
+    setLoadingStudyPlan(true);
+    setErrorStudyPlan(null);
+    setStudyPlanData(null);
+    try {
+      const text = transcription || summary;
+      const res = await fetch('http://localhost:8000/generate_studyplan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.accessToken}`,
+        },
+        body: JSON.stringify({ text })
+      });
+      if (!res.ok) throw new Error('Failed to generate study plan');
+      const data = await res.json();
+      setStudyPlanData(data);
+    } catch (err: any) {
+      setErrorStudyPlan(err.message || 'Failed to generate study plan');
+    } finally {
+      setLoadingStudyPlan(false);
+    }
   };
 
   if (!hasContent) return null;
@@ -299,6 +338,52 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+      {activeTab === 'studyplan' && (
+        <div className="flex flex-col items-center gap-6 py-8">
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
+            onClick={handleGenerateStudyPlan}
+            type="button"
+            disabled={loadingStudyPlan || !(transcription || summary) || !session?.accessToken}
+          >
+            {loadingStudyPlan ? 'Gerando plano de estudos...' : 'Gerar Plano de Estudos'}
+          </button>
+          <div className="w-full">
+            {errorStudyPlan && (
+              <div className="text-red-500 text-center mb-4">{errorStudyPlan}</div>
+            )}
+            {studyPlanData && studyPlanData.plan.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="min-w-full border border-gray-300 rounded">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-2 border">Tópico</th>
+                      <th className="px-4 py-2 border">Revisões</th>
+                      <th className="px-4 py-2 border">Notas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {studyPlanData.plan.map((item, idx) => (
+                      <tr key={idx} className="border-t">
+                        <td className="px-4 py-2 border font-semibold">{item.topic}</td>
+                        <td className="px-4 py-2 border">
+                          {item.review_dates.map((date, i) => (
+                            <span key={i} className="inline-block bg-blue-100 text-blue-800 rounded px-2 py-1 text-xs mr-1 mb-1">{date}</span>
+                          ))}
+                        </td>
+                        <td className="px-4 py-2 border text-gray-700">{item.notes}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {!loadingStudyPlan && !errorStudyPlan && (!studyPlanData || studyPlanData.plan.length === 0) && (
+              <div className="text-gray-500 text-center py-8">Nenhum plano de estudos gerado ainda.</div>
             )}
           </div>
         </div>
