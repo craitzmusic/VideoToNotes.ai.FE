@@ -1,10 +1,9 @@
 'use client';
 
 import { FC, FormEvent, useState } from "react";
-import { VideoMetadataProps } from "./VideoMetadata";
 
 interface UploadFormProps {
-  onResult?: (text: string, summary: string, metadata?: VideoMetadataProps) => void;
+  onResult?: (text: string, summary: string) => void;
   onStatus?: (status: string) => void;
 }
 
@@ -34,9 +33,9 @@ const UploadForm: FC<UploadFormProps> = ({
 
       if (!response.ok) throw new Error("Server error");
 
-      const data: { text: string; summary: string, metadata: VideoMetadataProps } = await response.json();
+      const data: { text: string; summary: string } = await response.json();
 
-      onResult?.(data.text, data.summary, data.metadata);
+      onResult?.(data.text, data.summary);
       onStatus?.("Transcription completed!");
     } catch (error) {
       console.error(error);

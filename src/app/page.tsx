@@ -5,28 +5,22 @@ import Header from './components/Header';
 import ResultSection from './components/ResultSection';
 import Spinner from "./components/Spinner";
 import UploadForm from './components/UploadForm';
-import { VideoMetadataFields, VideoMetadataProps } from "./components/VideoMetadata";
-import YoutubeForm from './components/YoutubeForm';
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<string>('');
   const [transcription, setTranscription] = useState<string>('');
   const [summary, setSummary] = useState<string>('');
-  const [metadata, setMetadata] = useState<VideoMetadataFields | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
 
   const handleResult = (
     text: string,
-    summaryText: string,
-    metadataObj?: VideoMetadataProps
+    summaryText: string
   ) => {
-    console.log("📦 Received from form:", { text, summaryText, metadata: metadataObj });
     setTranscription(text);
     setSummary(summaryText);
-    setMetadata(metadataObj?.metadata ?? null);
   };
 
   const handleStatus = (message: string) => {
@@ -76,11 +70,6 @@ export default function HomePage() {
           onStatus={handleStatus}
         />
 
-        <YoutubeForm
-          onResult={handleResult}
-          onStatus={handleStatus}
-        />
-
         {isLoading && (
           <Spinner>
             <span className="text-sm text-gray-600 ml-2">
@@ -96,7 +85,6 @@ export default function HomePage() {
         <ResultSection
           transcription={transcription}
           summary={summary}
-          metadata={metadata ?? undefined}
         />
       </main>
     </div>
