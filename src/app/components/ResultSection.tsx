@@ -72,7 +72,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
     setShowAnswers(false);
     try {
       const text = transcription || summary;
-      const res = await fetch('http://localhost:8000/generate_questions', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate_questions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
     setShowFlashcardBack(false);
     try {
       const text = transcription || summary;
-      const res = await fetch('http://localhost:8000/generate_flashcards', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate_flashcards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
     setStudyPlanData(null);
     try {
       const text = transcription || summary;
-      const res = await fetch('http://localhost:8000/generate_studyplan', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate_studyplan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
