@@ -1,6 +1,7 @@
 'use client';
 
 import { FC, FormEvent, useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface UploadFormProps {
   onResult?: (text: string, summary: string) => void;
@@ -13,6 +14,7 @@ const UploadForm: FC<UploadFormProps> = ({
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { data: session } = useSession();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -29,6 +31,9 @@ const UploadForm: FC<UploadFormProps> = ({
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe`, {
         method: "POST",
         body: formData,
+        headers: {
+          "Authorization": `Bearer ${session?.accessToken || ""}`,
+        },
       });
 
       if (!response.ok) throw new Error("Server error");
