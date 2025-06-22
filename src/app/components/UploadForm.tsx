@@ -15,6 +15,7 @@ const UploadForm: FC<UploadFormProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
+  const [provider, setProvider] = useState<string>("openai");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -28,13 +29,15 @@ const UploadForm: FC<UploadFormProps> = ({
       setIsLoading(true);
       onStatus?.("Uploading and transcribing...");
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Authorization": `Bearer ${session?.accessToken || ""}`,
-        },
-      });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe?provider=${provider}`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Authorization": `Bearer ${session?.accessToken || ""}`,
+          },
+        }
+      );
 
       if (!response.ok) throw new Error("Server error");
 
@@ -53,6 +56,16 @@ const UploadForm: FC<UploadFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md space-y-4">
       <h2 className="text-lg font-semibold text-gray-800">Upload a File</h2>
+
+      <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+      <select
+        value={provider}
+        onChange={e => setProvider(e.target.value)}
+        className="w-full border border-gray-300 rounded px-3 py-2 text-sm mb-4"
+      >
+        <option value="openai">OpenAI</option>
+        <option value="t5">T5</option>
+      </select>
 
       <input
         type="file"
