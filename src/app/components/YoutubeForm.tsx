@@ -27,7 +27,7 @@ export default function YoutubeForm({
       setIsLoading(true);
       onStatus?.("Downloading and transcribing video...");
 
-      const res = await fetch("http://localhost:8000/transcribe_youtube", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe_youtube`, {
         method: "POST",
         headers: { 
             "Content-Type": "application/json",

@@ -27,7 +27,7 @@ const UploadForm: FC<UploadFormProps> = ({
       setIsLoading(true);
       onStatus?.("Uploading and transcribing...");
 
-      const response = await fetch("http://localhost:8000/transcribe", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/transcribe`, {
         method: "POST",
         body: formData,
       });
