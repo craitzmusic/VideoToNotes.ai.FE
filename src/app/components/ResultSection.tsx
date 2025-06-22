@@ -2,13 +2,10 @@
 
 import { FC, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import VideoMetadata from './VideoMetadata';
-import { VideoMetadataFields } from './VideoMetadata';
 
 interface ResultSectionProps {
   transcription?: string;
   summary?: string;
-  metadata?: VideoMetadataFields;
 }
 
 interface Flashcard {
@@ -34,7 +31,6 @@ interface Question {
 }
 
 const TABS = [
-  { key: 'metadata', label: 'Metadata' },
   { key: 'transcription', label: 'Transcription' },
   { key: 'summary', label: 'Summary' },
   { key: 'questions', label: 'Questions' },
@@ -44,9 +40,9 @@ const TABS = [
 ];
 
 // Component to display transcription, summary and optional video metadata
-const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadata }) => {
-  const hasContent = transcription || summary || metadata;
-  const [activeTab, setActiveTab] = useState<string>('metadata');
+const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
+  const hasContent = transcription || summary;
+  const [activeTab, setActiveTab] = useState<string>('transcription');
   const [numQuestions, setNumQuestions] = useState(5);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
@@ -180,13 +176,6 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary, metadat
       </div>
 
       {/* Tab content */}
-      {activeTab === 'metadata' && (
-        metadata ? (
-          <VideoMetadata metadata={metadata} />
-        ) : (
-          <div className="text-gray-500 text-center py-8">No metadata available.</div>
-        )
-      )}
       {activeTab === 'transcription' && (
         transcription ? (
           <div>
