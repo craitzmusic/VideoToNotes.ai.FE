@@ -3,26 +3,31 @@
 import { FC, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
+// Props for the ResultSection component: receives transcription and summary text
 interface ResultSectionProps {
   transcription?: string;
   summary?: string;
 }
 
+// Flashcard interface: represents a single flashcard with front and back text
 interface Flashcard {
   front: string;
   back: string;
 }
 
+// StudyPlanTopic interface: represents a topic in the study plan with review dates and notes
 interface StudyPlanTopic {
   topic: string;
   review_dates: string[];
   notes: string;
 }
 
+// StudyPlanData interface: represents the full study plan
 interface StudyPlanData {
   plan: StudyPlanTopic[];
 }
 
+// Question interface: represents a multiple-choice question
 interface Question {
   enunciado: string;
   alternativas: string[];
@@ -30,36 +35,48 @@ interface Question {
   explicacao?: string;
 }
 
+// Tab definitions for navigation
 const TABS = [
   { key: 'transcription', label: 'Transcription' },
   { key: 'summary', label: 'Summary' },
   { key: 'questions', label: 'Questions' },
   { key: 'flashcards', label: 'Flashcards' },
   { key: 'studyplan', label: 'Plano de Estudos' },
-  { key: 'mindmap', label: 'Mind Map' },
 ];
 
-// Component to display transcription, summary and optional video metadata
+// Main component to display results and interactive features after transcription
 const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
+  // Check if there is any content to display
   const hasContent = transcription || summary;
+
+  // State for tab navigation
   const [activeTab, setActiveTab] = useState<string>('transcription');
+
+  // State and logic for questions generation and interaction
   const [numQuestions, setNumQuestions] = useState(5);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [errorQuestions, setErrorQuestions] = useState<string | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number | undefined }>({});
   const [showAnswers, setShowAnswers] = useState(false);
+
+  // State and logic for flashcards generation and navigation
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loadingFlashcards, setLoadingFlashcards] = useState(false);
   const [errorFlashcards, setErrorFlashcards] = useState<string | null>(null);
   const [currentFlashcard, setCurrentFlashcard] = useState(0);
   const [showFlashcardBack, setShowFlashcardBack] = useState(false);
   const [numFlashcards, setNumFlashcards] = useState(10);
+
+  // State and logic for study plan generation
   const [studyPlanData, setStudyPlanData] = useState<StudyPlanData | null>(null);
   const [loadingStudyPlan, setLoadingStudyPlan] = useState(false);
   const [errorStudyPlan, setErrorStudyPlan] = useState<string | null>(null);
+
+  // Get user session for authentication (used in API calls)
   const { data: session } = useSession();
 
+  // Fetches questions from the backend based on the transcription/summary
   const handleGenerateQuestions = async () => {
     setLoadingQuestions(true);
     setQuestions([]);
@@ -87,10 +104,12 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
     }
   };
 
+  // Handles answer selection for questions
   const handleSelectAnswer = (qIdx: number, altIdx: number) => {
     setSelectedAnswers(prev => ({ ...prev, [qIdx]: altIdx }));
   };
 
+  // Fetches flashcards from the backend based on the transcription/summary
   const handleGenerateFlashcards = async () => {
     setLoadingFlashcards(true);
     setErrorFlashcards(null);
@@ -118,16 +137,20 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
     }
   };
 
+  // Shows the back of the current flashcard
   const handleShowFlashcardBack = () => setShowFlashcardBack(true);
+  // Navigates to the previous flashcard
   const handlePrevFlashcard = () => {
     setCurrentFlashcard((prev) => Math.max(prev - 1, 0));
     setShowFlashcardBack(false);
   };
+  // Navigates to the next flashcard
   const handleNextFlashcard = () => {
     setCurrentFlashcard((prev) => Math.min(prev + 1, flashcards.length - 1));
     setShowFlashcardBack(false);
   };
 
+  // Fetches a study plan from the backend based on the transcription/summary
   const handleGenerateStudyPlan = async () => {
     setLoadingStudyPlan(true);
     setErrorStudyPlan(null);
@@ -153,11 +176,12 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
     }
   };
 
+  // If there is no content, render nothing
   if (!hasContent) return null;
 
   return (
     <section className="bg-white p-6 rounded shadow-md mt-6">
-      {/* Tab navigation */}
+      {/* Tab navigation for switching between result types */}
       <div className="flex border-b mb-4 gap-2">
         {TABS.map(tab => (
           <button
@@ -175,7 +199,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
         ))}
       </div>
 
-      {/* Tab content */}
+      {/* Tab content rendering based on activeTab */}
       {activeTab === 'transcription' && (
         transcription ? (
           <div>
@@ -202,6 +226,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
       )}
       {activeTab === 'questions' && (
         <div className="flex flex-col items-center gap-6 py-8">
+          {/* Controls for generating questions */}
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <label htmlFor="num-questions" className="text-sm font-medium text-gray-700">Number of questions:</label>
             <select
@@ -223,6 +248,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
               {loadingQuestions ? 'Generating...' : 'Generate questions from content'}
             </button>
           </div>
+          {/* Display generated questions and answer selection */}
           <div className="w-full max-w-2xl mx-auto">
             {errorQuestions && (
               <div className="text-red-500 text-center mb-4">{errorQuestions}</div>
@@ -265,6 +291,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
       )}
       {activeTab === 'flashcards' && (
         <div className="flex flex-col items-center gap-6 py-8">
+          {/* Controls for generating flashcards */}
           <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
             <label htmlFor="num-flashcards" className="text-sm font-medium text-gray-700">Number of flashcards:</label>
             <select
@@ -286,6 +313,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
               {loadingFlashcards ? 'Generating...' : 'Generate flashcards from content'}
             </button>
           </div>
+          {/* Display generated flashcards and navigation */}
           <div className="w-full max-w-md mx-auto text-center">
             {errorFlashcards && (
               <div className="text-red-500 mb-4">{errorFlashcards}</div>
@@ -338,6 +366,7 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
       )}
       {activeTab === 'studyplan' && (
         <div className="flex flex-col items-center gap-6 py-8">
+          {/* Button to generate study plan */}
           <button
             className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
             onClick={handleGenerateStudyPlan}
