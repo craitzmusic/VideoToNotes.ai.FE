@@ -1,22 +1,7 @@
 name: Frontend CI
 
 on:
-  push:
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'Dockerfile'
-      - 'docker-compose*'
   pull_request:
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'Dockerfile'
-      - 'docker-compose*'
 
 jobs:
   build:
