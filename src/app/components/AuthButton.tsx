@@ -5,15 +5,21 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { FC } from "react";
 import Image from "next/image";
 
+// AuthButton component: handles user authentication UI (sign in/out)
+// Shows a sign-in button if the user is not authenticated,
+// or the user's avatar, name, and a sign-out button if authenticated.
 const AuthButton: FC = () => {
+  // useSession provides session data and authentication status
   const { data: session, status } = useSession();
 
+  // While authentication status is loading, render nothing
   if (status === "loading") return null;
 
+  // If user is not authenticated, show the sign-in button
   if (!session) {
     return (
       <button
-      onClick={() => signIn("google", { redirect: false })}
+        onClick={() => signIn("google", { redirect: false })}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
       >
         Sign in with Google
@@ -21,6 +27,7 @@ const AuthButton: FC = () => {
     );
   }
 
+  // If user is authenticated, show avatar, name, and sign-out button
   return (
     <div className="flex items-center space-x-4">
       <Image
