@@ -26,13 +26,17 @@ const StudyGuideTab: FC<StudyGuideTabProps> = ({ transcription }) => {
         setLoading(false);
         return;
       }
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate_study_guide_pdf`, {
+      // Call the new endpoint with semantic segmentation and robust pipeline
+      // You can adjust num_topics and num_questions as needed
+      const numTopics = 5; // Default: 5 topics
+      const numQuestions = 3; // Default: 3 questions per topic
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate_structured_study_guide_pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.accessToken}`,
         },
-        body: JSON.stringify({ transcript: transcription, title: 'Study Guide' })
+        body: JSON.stringify({ transcript: transcription, num_topics: numTopics, num_questions: numQuestions })
       });
       if (!res.ok) throw new Error('Failed to generate PDF');
       const blob = await res.blob();
