@@ -2,6 +2,7 @@
 
 import { FC, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import StudyGuideTab from './StudyGuideTab';
 
 // Props for the ResultSection component: receives transcription and summary text
 interface ResultSectionProps {
@@ -42,6 +43,7 @@ const TABS = [
   { key: 'questions', label: 'Questions' },
   { key: 'flashcards', label: 'Flashcards' },
   { key: 'studyplan', label: 'Plano de Estudos' },
+  { key: 'studyguidepdf', label: 'Study Guide PDF' },
 ];
 
 // Main component to display results and interactive features after transcription
@@ -410,6 +412,9 @@ const ResultSection: FC<ResultSectionProps> = ({ transcription, summary }) => {
             )}
           </div>
         </div>
+      )}
+      {activeTab === 'studyguidepdf' && (
+        <StudyGuideTab transcription={transcription} />
       )}
     </section>
   );
