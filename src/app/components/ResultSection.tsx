@@ -42,7 +42,7 @@ const TABS = [
   { key: 'summary', label: 'Summary' },
   { key: 'questions', label: 'Questions' },
   { key: 'flashcards', label: 'Flashcards' },
-  { key: 'studyplan', label: 'Plano de Estudos' },
+  { key: 'studyplan', label: 'Study Plan' },
   { key: 'studyguidepdf', label: 'Study Guide PDF' },
 ];
 
